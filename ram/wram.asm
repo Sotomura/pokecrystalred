@@ -1,11 +1,3 @@
-INCLUDE "constants.asm"
-
-INCLUDE "macros/wram.asm"
-
-
-INCLUDE "vram.asm"
-
-
 SECTION "Stack", WRAM0
 
 wStackBottom::
@@ -168,7 +160,7 @@ wIndexedMovement2Pointer:: dw
 
 	ds 2
 
-wMovementByteWasControlSwitch:: db
+wContinueReadingMovement:: db
 
 UNION
 wObjectPriorities:: ds NUM_OBJECT_STRUCTS
@@ -283,7 +275,8 @@ wSpriteAnimDataEnd::
 
 ; mobile data
 wc3cc:: ds 1
-wc3cd:: ds 31
+wEmailAddress:: ds MOBILE_EMAIL_LENGTH
+	ds 1
 wc3ec:: ds 1
 wc3ed:: ds 1
 wc3ee:: ds 1
@@ -307,12 +300,12 @@ wMobileWRAMEnd::
 
 SECTION "Sprites", WRAM0
 
-wVirtualOAM::
-; wVirtualOAMSprite00 - wVirtualOAMSprite39
+wShadowOAM::
+; wShadowOAMSprite00 - wShadowOAMSprite39
 for n, NUM_SPRITE_OAM_STRUCTS
-wVirtualOAMSprite{02d:n}:: sprite_oam_struct wVirtualOAMSprite{02d:n}
+wShadowOAMSprite{02d:n}:: sprite_oam_struct wShadowOAMSprite{02d:n}
 endr
-wVirtualOAMEnd::
+wShadowOAMEnd::
 
 
 SECTION "Tilemap", WRAM0
@@ -676,16 +669,46 @@ wDebugDarkTileColor::  ds 2
 wDebugBlackTileColor:: ds 2
 
 NEXTU
-wc608:: ds 16
-wc618:: ds 37
-wc63d:: ds 5
-wc642:: ds 5
-wc647:: ds 1
+wMobileMonSender:: ds NAME_LENGTH_JAPANESE - 1
+wMobileMon::       party_struct wMobileMon
+wMobileMonOT::     ds NAME_LENGTH_JAPANESE - 1
+wMobileMonNick::   ds NAME_LENGTH_JAPANESE - 1
+wMobileMonMail::   mailmsg_jp wMobileMonMail
+
+NEXTU
+wOfferEmail::      ds MOBILE_EMAIL_LENGTH
+wOfferTrainerID::  dw
+wOfferSecretID::   dw
+wOfferGender::     db
+wOfferSpecies::    db
+wOfferReqGender::  db
+wOfferReqSpecies:: db
+wOfferMonSender::  ds NAME_LENGTH_JAPANESE - 1
+wOfferMon::        party_struct wOfferMon
+wOfferMonOT::      ds NAME_LENGTH_JAPANESE - 1
+wOfferMonNick::    ds NAME_LENGTH_JAPANESE - 1
+wOfferMonMail::    mailmsg_jp wOfferMonMail
+
+NEXTU
+wUnknownGender::     db
+wUnknownSpecies::    db
+wUnknownReqGender::  db
+wUnknownReqSpecies:: db
+wUnknownMonSender::  ds NAME_LENGTH_JAPANESE - 1
+wUnknownMon::        party_struct wUnknownMon
+wUnknownMonOT::      ds NAME_LENGTH_JAPANESE - 1
+wUnknownMonNick::    ds NAME_LENGTH_JAPANESE - 1
+wUnknownMonMail::    mailmsg_jp wUnknownMonMail
+
+NEXTU
+wc608:: ds 7
+wc60f:: ds 9
+wc618:: ds 48
 wc648:: ds 2
-wc64a:: ds 30
-wc668:: ds 32
+wc64a:: ds 62
 wc688:: ds 2
-wc68a:: ds 30
+wc68a:: ds 15
+wc699:: ds 15
 wc6a8:: ds 40
 ENDU
 
@@ -720,7 +743,8 @@ if DEF(_CRYSTAL11)
 wPokedexStatus:: db
 wPokedexDataEnd::
 else
-wPokedexDataEnd:: ds 1
+wPokedexDataEnd::
+	ds 1
 endc
 	ds 2
 
@@ -1111,8 +1135,7 @@ wc80b:: db
 wc80c:: dw
 wc80e:: db
 wc80f:: db
-wc810:: db
-wc811:: db
+wc810:: dw
 wMobileSDK_PacketChecksum:: dw
 wc814:: db
 wc815:: db
@@ -1130,8 +1153,7 @@ wc821:: db
 wc822:: db
 wc823:: ds 4
 wc827:: dw
-wc829:: db
-wc82a:: db
+wc829:: dw
 wc82b:: db
 wc82c:: db
 wc82d:: db
@@ -1149,8 +1171,7 @@ wc86a:: db
 wc86b:: db
 wc86c:: db
 wc86d:: db
-wc86e:: db
-wc86f:: db
+wc86e:: dw
 wc870:: db
 wc871:: db
 wc872:: db
@@ -1166,8 +1187,7 @@ wc87c:: db
 wc87d:: db
 wc87e:: db
 wc87f:: db
-wc880:: db
-wc881:: db
+wc880:: dw
 wc882:: db
 wc883:: db
 wc884:: ds 8
@@ -1195,7 +1215,7 @@ wc983:: dw
 wc985:: db
 wc986:: db
 wc987:: db
-wc988:: db
+wMobileAPIIndex:: db
 wc989:: db
 wc98a:: db
 wc98b:: db
@@ -1317,7 +1337,8 @@ wcd27:: ds 1
 wcd28:: ds 1
 wcd29:: ds 1
 
-wMobileMonSpecies::
+wMobileMonIndex::
+wMobileMonMiscSpecies::
 wcd2a:: db
 
 UNION
@@ -1518,8 +1539,10 @@ wPrevDexEntryJumptableIndex:: db
 if DEF(_CRYSTAL11)
 wPrevDexEntryBackup:: db
 else
-wPrevDexEntryBackup::
-wPokedexStatus:: db
+; BUG: Crystal 1.0 reused the same byte in WRAM for
+; wPokedexStatus and wPrevDexEntryBackup.
+wPokedexStatus::
+wPrevDexEntryBackup:: db
 endc
 wUnusedPokedexByte:: db
 
@@ -1630,6 +1653,7 @@ wRequested1bppSize:: db
 wRequested1bppSource:: dw
 wRequested1bppDest:: dw
 
+wMenuMetadata::
 wWindowStackPointer:: dw
 wMenuJoypad:: db
 wMenuSelection:: db
@@ -1637,8 +1661,8 @@ wMenuSelectionQuantity:: db
 wWhichIndexSet:: db
 wScrollingMenuCursorPosition:: db
 wWindowStackSize:: db
-
 	ds 8
+wMenuMetadataEnd::
 
 ; menu header
 wMenuHeader::
@@ -1686,6 +1710,7 @@ wMenuData_ScrollingMenuFunction3:: ds 3
 ENDU
 wMenuDataEnd::
 
+wMoreMenuData::
 w2DMenuData::
 w2DMenuCursorInitY:: db
 w2DMenuCursorInitX:: db
@@ -1710,8 +1735,8 @@ wMenuCursorY:: db
 wMenuCursorX:: db
 wCursorOffCharacter:: db
 wCursorCurrentTile:: dw
-
 	ds 3
+wMoreMenuDataEnd::
 
 wOverworldDelay:: db
 wTextDelayFrames:: db
@@ -2231,7 +2256,10 @@ wBattleMenuCursorPosition:: db
 
 	ds 1
 
-wCurBattleMon:: db
+wCurBattleMon::
+; index of the player's mon currently in battle (0-5)
+	db
+
 wCurMoveNum:: db
 
 wLastPocket:: db
@@ -2318,9 +2346,7 @@ wMartItemID::
 wCurPartySpecies:: db
 
 wCurPartyMon::
-; contains which monster in a party
-; is being dealt with at the moment
-; 0-5
+; index of mon's party location (0-5)
 	db
 
 wWhichHPBar::
@@ -2386,8 +2412,8 @@ wd173:: db ; related to command queue type 3
 ENDU
 
 wOverworldMapAnchor:: dw
-wMetatileStandingY:: db
-wMetatileStandingX:: db
+wPlayerMetatileY:: db
+wPlayerMetatileX:: db
 
 wMapPartial::
 wMapAttributesBank:: db
@@ -3470,8 +3496,12 @@ w3_de00:: ds $200
 ENDU
 
 
+SECTION "News Script RAM", WRAMX
+
+w4_d000:: ds $1000
+
+
 SECTION "GBC Video", WRAMX, ALIGN[8]
-; LCD expects wLYOverrides to have an alignment of $100
 
 ; eight 4-color palettes each
 wGBCPalettes:: ; used only for BANK(wGBCPalettes)
@@ -3480,6 +3510,7 @@ wOBPals1:: ds 8 palettes
 wBGPals2:: ds 8 palettes
 wOBPals2:: ds 8 palettes
 
+	align 8
 wLYOverrides:: ds SCREEN_HEIGHT_PX
 wLYOverridesEnd::
 
@@ -3494,6 +3525,7 @@ wMagnetTrainPlayerSpriteInitX:: db
 
 	ds 106
 
+	align 8
 wLYOverridesBackup:: ds SCREEN_HEIGHT_PX
 wLYOverridesBackupEnd::
 
@@ -3610,8 +3642,3 @@ SECTION "Stack RAM", WRAMX
 
 wWindowStack:: ds $1000 - 1
 wWindowStackBottom:: ds 1
-
-
-INCLUDE "sram.asm"
-
-INCLUDE "hram.asm"

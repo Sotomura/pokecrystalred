@@ -146,12 +146,10 @@ LoadMetatiles::
 	ld e, l
 	ld d, h
 	; Set hl to the address of the current metatile data ([wTilesetBlocksAddress] + (a) tiles).
-	; This is buggy; it wraps around past 128 blocks.
-	; To fix, uncomment the line below.
-	add a ; Comment or delete this line to fix the above bug.
+; BUG: LoadMetatiles wraps around past 128 blocks (see docs/bugs_and_glitches.md)
+	add a
 	ld l, a
 	ld h, 0
-	; add hl, hl
 	add hl, hl
 	add hl, hl
 	add hl, hl
@@ -248,10 +246,10 @@ GetDestinationWarpNumber::
 	ret
 
 .GetDestinationWarpNumber:
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	sub 4
 	ld e, a
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	sub 4
 	ld d, a
 	ld a, [wCurMapWarpCount]
@@ -584,18 +582,16 @@ ReadObjectEvents::
 	call CopyMapObjectEvents
 
 ; get NUM_OBJECTS - [wCurMapObjectEventCount]
+; BUG: ReadObjectEvents overflows into wObjectMasks (see docs/bugs_and_glitches.md)
 	ld a, [wCurMapObjectEventCount]
 	ld c, a
-	ld a, NUM_OBJECTS ; - 1
+	ld a, NUM_OBJECTS
 	sub c
 	jr z, .skip
-	; jr c, .skip
 
 	; could have done "inc hl" instead
 	ld bc, 1
 	add hl, bc
-; Fill the remaining sprite IDs and y coords with 0 and -1, respectively.
-; Bleeds into wObjectMasks due to a bug.  Uncomment the above code to fix.
 	ld bc, MAPOBJECT_LENGTH
 .loop
 	ld [hl],  0
@@ -1518,16 +1514,16 @@ GetMovementPermissions::
 	call .LeftRight
 	call .UpDown
 ; get coords of current tile
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	ld d, a
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	ld e, a
 	call GetCoordTile
-	ld [wPlayerStandingTile], a
+	ld [wPlayerTile], a
 	call .CheckHiNybble
 	ret nz
 
-	ld a, [wPlayerStandingTile]
+	ld a, [wPlayerTile]
 	and 7
 	ld hl, .MovementPermissionsData
 	add l
@@ -1552,9 +1548,9 @@ GetMovementPermissions::
 	db UP_MASK | LEFT_MASK
 
 .UpDown:
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	ld d, a
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	ld e, a
 
 	push de
@@ -1571,9 +1567,9 @@ GetMovementPermissions::
 	ret
 
 .LeftRight:
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	ld d, a
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	ld e, a
 
 	push de
@@ -1692,10 +1688,10 @@ GetFacingTileCoord::
 	ld h, [hl]
 	ld l, a
 
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	add d
 	ld d, a
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	add e
 	ld e, a
 	ld a, [hl]
@@ -1865,10 +1861,10 @@ CheckCurrentMapCoordEvents::
 	call CheckScenes
 	ld b, a
 ; Load your current coordinates into de.  This will be used to check if your position is in the coord event table for the current map.
-	ld a, [wPlayerStandingMapX]
+	ld a, [wPlayerMapX]
 	sub 4
 	ld d, a
-	ld a, [wPlayerStandingMapY]
+	ld a, [wPlayerMapY]
 	sub 4
 	ld e, a
 

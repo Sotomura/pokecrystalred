@@ -155,7 +155,7 @@ sBattleTowerChallengeState::
 sNrOfBeatenBattleTowerTrainers:: db
 sBTChoiceOfLevelGroup:: db
 ; Battle Tower trainers are saved here, so nobody appears more than once
-sBTTrainers:: ds BATTLETOWER_STREAK_LENGTH ; sbe48
+sBTTrainers:: ds BATTLETOWER_STREAK_LENGTH
 sBattleTowerSaveFileFlags:: db
 sBattleTowerReward:: db
 
@@ -174,12 +174,12 @@ endr
 
 ; The PC boxes will not fit into one SRAM bank,
 ; so they use multiple SECTIONs
-box_n = 0
-boxes: MACRO
-rept \1
-box_n += 1
-sBox{d:box_n}:: box sBox{d:box_n}
-endr
+DEF box_n = 0
+MACRO boxes
+	rept \1
+		DEF box_n += 1
+	sBox{d:box_n}:: box sBox{d:box_n}
+	endr
 ENDM
 
 SECTION "Boxes 1-7", SRAM
@@ -201,11 +201,12 @@ SECTION "SRAM Mobile 1", SRAM
 
 	ds $7
 
-s4_a007:: ; struct size $30
-
-	ds $c
-
-s4_a013:: ds 36
+sEZChatMessages::
+sEZChatIntroductionMessage:: ds EASY_CHAT_MESSAGE_LENGTH
+sEZChatBattleMessages::
+sEZChatBeginBattleMessage::  ds EASY_CHAT_MESSAGE_LENGTH
+sEZChatWinBattleMessage::    ds EASY_CHAT_MESSAGE_LENGTH
+sEZChatLoseBattleMessage::   ds EASY_CHAT_MESSAGE_LENGTH
 
 s4_a037:: ds 4
 
@@ -286,13 +287,23 @@ sTrainerRankingsBackup:: ds sTrainerRankingsEnd - sTrainerRankings
 
 s5_a800:: db
 
-	ds $24
+sOfferEmail::      ds MOBILE_EMAIL_LENGTH
+sOfferTrainerID::  dw
+sOfferSecretID::   dw
+sOfferGender::     db
+sOfferSpecies::    db
+sOfferReqGender::  db
+sOfferReqSpecies:: db
+sOfferMonSender::  ds NAME_LENGTH_JAPANESE - 1
+sOfferMon::        party_struct sOfferMon
+sOfferMonOT::      ds NAME_LENGTH_JAPANESE - 1
+sOfferMonNick::    ds NAME_LENGTH_JAPANESE - 1
+sOfferMonMail::    mailmsg_jp sOfferMonMail
 
-s5_a825:: db
-s5_a826:: db
-
-	ds $6d
-
+s5_a890:: db
+s5_a891:: db
+s5_a892:: db
+s5_a893:: db
 s5_a894:: ds 6
 s5_a89a:: dw
 s5_a89c:: ds 22
@@ -372,13 +383,19 @@ s5_bfff:: db
 
 SECTION "SRAM Mobile 3", SRAM
 
-s6_a000::
-
+s6_a000:: db
+	db
+s6_a002:: db
+s6_a003:: db
+s6_a004:: db
+s6_a005:: db
+s6_a006:: ds $1000
 
 SECTION "SRAM Mobile 4", SRAM
 
-s7_a000::
+s7_a000:: db
+s7_a001:: db
 
-	ds $800
+	ds $7fe
 
 s7_a800:: db

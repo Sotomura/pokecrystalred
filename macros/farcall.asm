@@ -1,16 +1,18 @@
-farcall: MACRO ; bank, address
+; Far calls to another bank
+
+MACRO farcall ; bank, address
 	ld a, BANK(\1)
 	ld hl, \1
 	rst FarCall
 ENDM
 
-callfar: MACRO ; address, bank
+MACRO callfar ; address, bank
 	ld hl, \1
 	ld a, BANK(\1)
 	rst FarCall
 ENDM
 
-homecall: MACRO
+MACRO homecall
 	ldh a, [hROMBank]
 	push af
 	ld a, BANK(\1)

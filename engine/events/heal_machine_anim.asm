@@ -59,11 +59,11 @@ HealMachineAnim:
 	dw .ElmsLab
 	dw .HallOfFame
 
-healmachineanimseq: MACRO
-rept _NARG
-	db HEALMACHINESTATE_\1
-	shift
-endr
+MACRO healmachineanimseq
+	rept _NARG
+		db HEALMACHINESTATE_\1
+		shift
+	endr
 ENDM
 
 .Pokecenter:
@@ -91,14 +91,14 @@ ENDM
 	ret
 
 .PC_LoadBallsOntoMachine:
-	ld hl, wVirtualOAMSprite32
+	ld hl, wShadowOAMSprite32
 	ld de, .PC_ElmsLab_OAM
 	call .PlaceHealingMachineTile
 	call .PlaceHealingMachineTile
 	jr .LoadBallsOntoMachine
 
 .HOF_LoadBallsOntoMachine:
-	ld hl, wVirtualOAMSprite32
+	ld hl, wShadowOAMSprite32
 	ld de, .HOF_OAM
 
 .LoadBallsOntoMachine:

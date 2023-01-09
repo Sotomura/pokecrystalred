@@ -58,12 +58,16 @@ BattleAnimRunScript:
 	farcall CheckBattleScene
 	jr c, .disabled
 
+; This vc_hook reduces the move animation flashing in the Virtual Console for
+; Fissure, Self-Destruct, Thunder, Flash, Explosion, Horn Drill, and Hyper Beam.
+	vc_hook Reduce_move_anim_flashing
 	call BattleAnimClearHud
 	call RunBattleAnimScript
 
 	call BattleAnimAssignPals
 	call BattleAnimRequestPals
 
+	vc_hook Stop_reducing_move_anim_flashing
 	xor a
 	ldh [hSCX], a
 	ldh [hSCY], a
@@ -241,7 +245,7 @@ BattleAnim_ClearOAM:
 	jr z, .delete
 
 	; Instead of deleting the sprites, make them all use PAL_BATTLE_OB_ENEMY
-	ld hl, wVirtualOAMSprite00Attributes
+	ld hl, wShadowOAMSprite00Attributes
 	ld c, NUM_SPRITE_OAM_STRUCTS
 .loop
 	ld a, [hl]
@@ -256,8 +260,8 @@ endr
 	ret
 
 .delete
-	ld hl, wVirtualOAM
-	ld c, wVirtualOAMEnd - wVirtualOAM
+	ld hl, wShadowOAM
+	ld c, wShadowOAMEnd - wShadowOAM
 	xor a
 .loop2
 	ld [hli], a
@@ -649,9 +653,9 @@ BattleAnimCmd_ResetObp0:
 	ret
 
 BattleAnimCmd_ClearObjs:
-; BUG: This function only clears the first 6⅔ objects
+; BUG: BattleAnimCmd only clears the first 6⅔ objects (see docs/bugs_and_glitches.md)
 	ld hl, wActiveAnimObjects
-	ld a, $a0 ; should be NUM_ANIM_OBJECTS * BATTLEANIMSTRUCT_LENGTH
+	ld a, $a0
 .loop
 	ld [hl], 0
 	inc hl
@@ -673,6 +677,7 @@ BattleAnimCmd_5GFX:
 .loop
 	ld a, [wBattleAnimGFXTempTileID]
 	cp (vTiles1 - vTiles0) / LEN_2BPP_TILE - BATTLEANIM_BASE_TILE
+	vc_hook Reduce_move_anim_flashing_PRESENT
 	ret nc
 	call GetBattleAnimByte
 	ld [hli], a
@@ -1307,9 +1312,9 @@ endr
 
 PlayHitSound:
 	ld a, [wNumHits]
-	cp $1
+	cp BATTLEANIM_ENEMY_DAMAGE
 	jr z, .okay
-	cp $4
+	cp BATTLEANIM_PLAYER_DAMAGE
 	ret nz
 
 .okay
@@ -1472,10 +1477,10 @@ BattleAnim_UpdateOAM_All:
 	jr nz, .loop
 	ld a, [wBattleAnimOAMPointerLo]
 	ld l, a
-	ld h, HIGH(wVirtualOAM)
+	ld h, HIGH(wShadowOAM)
 .loop2
 	ld a, l
-	cp LOW(wVirtualOAMEnd)
+	cp LOW(wShadowOAMEnd)
 	jr nc, .done
 	xor a
 	ld [hli], a

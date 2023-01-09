@@ -1,8 +1,8 @@
-NAMINGSCREEN_CURSOR     EQU $7e
+DEF NAMINGSCREEN_CURSOR     EQU $7e
 
-NAMINGSCREEN_BORDER     EQU "■" ; $60
-NAMINGSCREEN_MIDDLELINE EQU "→" ; $eb
-NAMINGSCREEN_UNDERLINE  EQU "<DOT>" ; $f2
+DEF NAMINGSCREEN_BORDER     EQU "■" ; $60
+DEF NAMINGSCREEN_MIDDLELINE EQU "→" ; $eb
+DEF NAMINGSCREEN_UNDERLINE  EQU "<DOT>" ; $f2
 
 _NamingScreen:
 	call DisableSpriteUpdates
@@ -131,8 +131,8 @@ NamingScreen:
 	db "YOUR NAME?@"
 
 .Rival:
-	ld de, SilverSpriteGFX
-	ld b, BANK(SilverSpriteGFX)
+	ld de, RivalSpriteGFX
+	ld b, BANK(RivalSpriteGFX)
 	call .LoadSprite
 	hlcoord 5, 2
 	ld de, .RivalNameString
@@ -961,7 +961,7 @@ _ComposeMailMessage:
 	ret
 
 .MailIcon:
-INCBIN "gfx/icons/mail_big.2bpp"
+INCBIN "gfx/naming_screen/mail.2bpp"
 
 .initwNamingScreenMaxNameLength
 	ld a, MAIL_MSG_LENGTH + 1

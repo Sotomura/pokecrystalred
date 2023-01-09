@@ -161,6 +161,17 @@ AddHallOfFameEntry:
 	ld bc, wHallOfFamePokemonListEnd - wHallOfFamePokemonList + 1
 	call CopyBytes
 	call CloseSRAM
+; This vc_hook causes the Virtual Console to set [sMobileEventIndex] and [sMobileEventIndexBackup]
+; to MOBILE_EVENT_OBJECT_GS_BALL, which enables you to get the GS Ball, take it to Kurt, and
+; encounter Celebi. It assumes that sMobileEventIndex and sMobileEventIndexBackup are at their
+; original addresses.
+	vc_hook Enable_GS_Ball_mobile_event
+	vc_assert BANK(sMobileEventIndex) == $1 && sMobileEventIndex == $be3c, \
+		"sMobileEventIndex is no longer located at 01:be3c."
+	vc_assert BANK(sMobileEventIndexBackup) == $1 && sMobileEventIndexBackup == $be44, \
+		"sMobileEventIndexBackup is no longer located at 01:be44."
+	vc_assert MOBILE_EVENT_OBJECT_GS_BALL == $0b, \
+		"MOBILE_EVENT_OBJECT_GS_BALL is no longer equal to $0b."
 	ret
 
 SaveGameData:
@@ -390,20 +401,28 @@ EraseHallOfFame:
 	call ByteFill
 	jp CloseSRAM
 
-Function14d18: ; unreferenced
-	ld a, BANK(s4_a007) ; MBC30 bank used by JP Crystal; inaccessible by MBC3
+InitDefaultEZChatMsgs: ; unreferenced
+	ld a, BANK(sEZChatMessages) ; MBC30 bank used by JP Crystal; inaccessible by MBC3
 	call OpenSRAM
 	ld hl, .Data
-	ld de, s4_a007
-	ld bc, 4 * 12
+	ld de, sEZChatMessages
+	ld bc, EASY_CHAT_MESSAGE_LENGTH * 4
 	call CopyBytes
 	jp CloseSRAM
 
 .Data:
-	db $0d, $02, $00, $05, $00, $00, $22, $02, $01, $05, $00, $00
-	db $03, $04, $05, $08, $03, $05, $0e, $06, $03, $02, $00, $00
-	db $39, $07, $07, $04, $00, $05, $04, $07, $01, $05, $00, $00
-	db $0f, $05, $14, $07, $05, $05, $11, $0c, $0c, $06, $06, $04
+; introduction
+	db $0d, EZCHAT_GREETINGS,    $00, EZCHAT_EXCLAMATIONS, $00, EZCHAT_POKEMON
+	db $22, EZCHAT_GREETINGS,    $01, EZCHAT_EXCLAMATIONS, $00, EZCHAT_POKEMON
+; begin battle
+	db $03, EZCHAT_BATTLE,       $05, EZCHAT_CONDITIONS,   $03, EZCHAT_EXCLAMATIONS
+	db $0e, EZCHAT_CONVERSATION, $03, EZCHAT_GREETINGS,    $00, EZCHAT_POKEMON
+; win battle
+	db $39, EZCHAT_FEELINGS,     $07, EZCHAT_BATTLE,       $00, EZCHAT_EXCLAMATIONS
+	db $04, EZCHAT_FEELINGS,     $01, EZCHAT_EXCLAMATIONS, $00, EZCHAT_POKEMON
+; lose battle
+	db $0f, EZCHAT_EXCLAMATIONS, $14, EZCHAT_FEELINGS,     $05, EZCHAT_EXCLAMATIONS
+	db $11, EZCHAT_TIME,         $0c, EZCHAT_CONVERSATION, $06, EZCHAT_BATTLE
 
 EraseBattleTowerStatus:
 	ld a, BANK(sBattleTowerChallengeState)
@@ -1057,28 +1076,12 @@ EraseBoxes:
 	jr nz, .next
 	ret
 
-box_address: MACRO
-	assert BANK(\1) == BANK(\2)
-	db BANK(\1)
-	dw \1, \2
-ENDM
-
 BoxAddresses:
 	table_width 5, BoxAddresses
-	box_address sBox1,  sBox1End
-	box_address sBox2,  sBox2End
-	box_address sBox3,  sBox3End
-	box_address sBox4,  sBox4End
-	box_address sBox5,  sBox5End
-	box_address sBox6,  sBox6End
-	box_address sBox7,  sBox7End
-	box_address sBox8,  sBox8End
-	box_address sBox9,  sBox9End
-	box_address sBox10, sBox10End
-	box_address sBox11, sBox11End
-	box_address sBox12, sBox12End
-	box_address sBox13, sBox13End
-	box_address sBox14, sBox14End
+for n, 1, NUM_BOXES + 1
+	db BANK(sBox{d:n}) ; aka BANK(sBox{d:n}End)
+	dw sBox{d:n}, sBox{d:n}End
+endr
 	assert_table_length NUM_BOXES
 
 Checksum:

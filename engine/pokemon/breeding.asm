@@ -620,6 +620,7 @@ GetBreedmonMovePointer:
 	ret
 
 GetEggFrontpic:
+; BUG: A hatching Unown egg would not show the right letter (see docs/bugs_and_glitches.md)
 	push de
 	ld [wCurPartySpecies], a
 	ld [wCurSpecies], a
@@ -835,7 +836,7 @@ Hatch_InitShellFragments:
 	call EggHatch_DoAnimFrame
 	ret
 
-shell_fragment: MACRO
+MACRO shell_fragment
 ; y tile, y pxl, x tile, x pxl, frameset offset, ???
 	db (\1 * 8) % $100 + \2, (\3 * 8) % $100 + \4, \5 - SPRITE_ANIM_FRAMESET_EGG_HATCH_1, \6
 ENDM

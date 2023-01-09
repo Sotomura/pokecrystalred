@@ -1,6 +1,3 @@
-INCLUDE "constants.asm"
-
-
 SECTION "Events", ROMX
 
 OverworldLoop::
@@ -349,7 +346,7 @@ CheckTileEvent:
 	ret
 
 .warp_tile
-	ld a, [wPlayerStandingTile]
+	ld a, [wPlayerTile]
 	call CheckPitTile
 	jr nz, .not_pit
 	ld a, PLAYEREVENT_FALL
@@ -549,12 +546,12 @@ TryObjectEvent:
 
 	ldh a, [hLastTalked]
 	call GetMapObject
-	ld hl, MAPOBJECT_COLOR
+	ld hl, MAPOBJECT_TYPE
 	add hl, bc
 	ld a, [hl]
-	and %00001111
+	and MAPOBJECT_TYPE_MASK
 
-; Bug: If IsInArray returns nc, data at bc will be executed as code.
+; BUG: TryObjectEvent arbitrary code execution (see docs/bugs_and_glitches.md)
 	push bc
 	ld de, 3
 	ld hl, ObjectEventTypeArray
@@ -569,7 +566,6 @@ TryObjectEvent:
 	jp hl
 
 .nope
-	; pop bc
 	xor a
 	ret
 
@@ -1085,9 +1081,13 @@ TryTileCollisionEvent::
 	call GetFacingTileCoord
 	ld [wFacingTileID], a
 	ld c, a
+	; CheckFacingTileForStdScript preserves c, and
+	; farcall copies c back into a.
 	farcall CheckFacingTileForStdScript
 	jr c, .done
 
+	; CheckCutTreeTile expects a == [wFacingTileID], which
+	; it still is after the previous farcall.
 	call CheckCutTreeTile
 	jr nz, .whirlpool
 	farcall TryCutOW
@@ -1188,7 +1188,7 @@ CanUseSweetScent::
 	jr nc, .no
 
 .ice_check
-	ld a, [wPlayerStandingTile]
+	ld a, [wPlayerTile]
 	call CheckIceTile
 	jr z, .no
 	scf
@@ -1259,7 +1259,7 @@ ChooseWildEncounter_BugContest::
 	ret
 
 TryWildEncounter_BugContest:
-	ld a, [wPlayerStandingTile]
+	ld a, [wPlayerTile]
 	call CheckSuperTallGrassTile
 	ld b, 40 percent
 	jr z, .ok

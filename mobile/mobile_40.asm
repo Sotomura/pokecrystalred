@@ -481,8 +481,8 @@ Function10034d:
 	ret
 
 .asm_10036a
-	ld a, 0
-	call Function3e32
+	ld a, MOBILEAPI_00
+	call MobileAPI
 	ld [wcd2c], a
 	ld a, h
 	ld [wcd2d], a
@@ -505,14 +505,14 @@ Function100382:
 
 Function10038a:
 	ld hl, wccb4
-	ld a, $2e
-	call Function3e32
+	ld a, MOBILEAPI_17
+	call MobileAPI
 	ret
 
 Function100393:
 	ld hl, wcc60
-	ld a, $3a
-	call Function3e32
+	ld a, MOBILEAPI_1D
+	call MobileAPI
 	ret
 
 Function10039c:
@@ -1530,6 +1530,7 @@ Function1009f3:
 _LinkBattleSendReceiveAction:
 	call .StageForSend
 	ld [wLinkBattleSentAction], a
+	vc_hook Wireless_start_exchange
 	farcall PlaceWaitingText
 	ld a, [wLinkMode]
 	cp LINK_MOBILE
@@ -1584,20 +1585,35 @@ _LinkBattleSendReceiveAction:
 	inc a
 	jr z, .waiting
 
+	vc_hook Wireless_end_exchange
+	vc_patch Wireless_net_delay_3
+if DEF(_CRYSTAL11_VC)
+	ld b, 26
+else
 	ld b, 10
+endc
+	vc_patch_end
 .receive
 	call DelayFrame
 	call LinkTransfer
 	dec b
 	jr nz, .receive
 
+	vc_hook Wireless_start_send_zero_bytes
+	vc_patch Wireless_net_delay_4
+if DEF(_CRYSTAL11_VC)
+	ld b, 26
+else
 	ld b, 10
+endc
+	vc_patch_end
 .acknowledge
 	call DelayFrame
 	call LinkDataReceived
 	dec b
 	jr nz, .acknowledge
 
+	vc_hook Wireless_end_send_zero_bytes
 	ld a, [wOtherPlayerLinkAction]
 	ld [wBattleAction], a
 	ret
@@ -2379,7 +2395,7 @@ Function100f8d:
 	call CloseSRAM
 	ret
 
-macro_100fc0: MACRO
+MACRO macro_100fc0
 	; first byte:
 	;     Bit 7 set: Not SRAM
 	;     Lower 7 bits: Bank if SRAM
@@ -2407,14 +2423,14 @@ Unknown_100feb:
 	db -1 ; end
 
 Unknown_100ff3:
-	macro_100fc0 wdc41,                1
-	macro_100fc0 wPlayerName,          NAME_LENGTH
-	macro_100fc0 wPlayerName,          NAME_LENGTH
-	macro_100fc0 wPlayerID,            2
-	macro_100fc0 wSecretID,            2
-	macro_100fc0 wPlayerGender,        1
-	macro_100fc0 s4_a603,              8
-	macro_100fc0 s4_a007,              PARTYMON_STRUCT_LENGTH
+	macro_100fc0 wdc41,           1
+	macro_100fc0 wPlayerName,     NAME_LENGTH
+	macro_100fc0 wPlayerName,     NAME_LENGTH
+	macro_100fc0 wPlayerID,       2
+	macro_100fc0 wSecretID,       2
+	macro_100fc0 wPlayerGender,   1
+	macro_100fc0 s4_a603,         8
+	macro_100fc0 sEZChatMessages, EASY_CHAT_MESSAGE_LENGTH * 4
 	db -1 ; end
 
 Unknown_10102c:
@@ -2437,10 +2453,10 @@ endr
 	ld [hl], e
 	inc hl
 	ld [hl], d
-	ld a, $07
+	ld a, BANK(s7_a001)
 	call OpenSRAM
 	ld hl, wc608
-	ld de, $a001
+	ld de, s7_a001
 	ld bc, wc7bd - wc608
 	call CopyBytes
 	call CloseSRAM
@@ -2469,7 +2485,7 @@ Function10107d:
 	ld bc, NAME_LENGTH
 	call .CopyAllFromOT
 	ld hl, wOTPartyMon1Species
-	ld de, $c699
+	ld de, wc699
 	ld bc, PARTYMON_STRUCT_LENGTH
 	call .CopyAllFromOT
 	ld a, $50
@@ -3095,7 +3111,7 @@ Function1014a6:
 Function1014b7:
 	call GetJoypad
 	ldh a, [hJoyPressed]
-	and $03
+	and A_BUTTON | B_BUTTON
 	jr nz, .asm_1014c5
 	ld hl, wcd42
 	dec [hl]
@@ -3138,32 +3154,32 @@ Function101507:
 	ld de, wcd30
 	ld hl, $40
 	ld bc, $40
-	ld a, $02
-	call Function3e32
+	ld a, MOBILEAPI_01
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
 	ret
 
 Function10151d: ; unreferenced
-	ld a, $34
-	call Function3e32
+	ld a, MOBILEAPI_1A
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
 	ret
 
 Function10152a:
-	ld a, $36
-	call Function3e32
+	ld a, MOBILEAPI_1B
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
 	ret
 
 Function101537:
-	ld a, $0a
-	call Function3e32
+	ld a, MOBILEAPI_05
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -3171,8 +3187,8 @@ Function101537:
 
 Function101544:
 	farcall StartMobileInactivityTimer
-	ld a, $12
-	call Function3e32
+	ld a, MOBILEAPI_09
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -3181,8 +3197,8 @@ Function101544:
 Function101557:
 	farcall StartMobileInactivityTimer
 	ld hl, wcd53
-	ld a, $08
-	call Function3e32
+	ld a, MOBILEAPI_04
+	call MobileAPI
 	ld a, [wMobileCommsJumptableIndex]
 	inc a
 	ld [wMobileCommsJumptableIndex], a
@@ -3628,17 +3644,20 @@ setcharmap ascii
 Unknown_10186f:
 	db .end - @
 	db $19, $73, $09, $13, "trade_crystal"
-.end	db 0
+.end
+	db 0
 
 Unknown_101882:
 	db .end - @
 	db $19, $67, $10, $01, "free__crystal"
-.end	db 0
+.end
+	db 0
 
 Unknown_101895:
 	db .end - @
 	db $19, $67, $10, $01, "limit_crystal"
-.end	db 0
+.end
+	db 0
 
 popc
 
@@ -3812,7 +3831,7 @@ _StartMobileBattle:
 .CopyOTDetails:
 	ldh a, [rSVBK]
 	push af
-	ld a, 5
+	ld a, BANK(w5_dc0d)
 	ldh [rSVBK], a
 
 	ld bc, w5_dc0d
@@ -4704,13 +4723,13 @@ Function1020ea:
 	ret
 
 Function102112:
-	ld a, $04
+	ld a, BANK(s4_a03b)
 	call OpenSRAM
-	ld hl, $a041
+	ld hl, s4_a03b + 6
 	ld c, 40
 .outer_loop
 	push hl
-	ld de, $c60f
+	ld de, wc60f
 	ld b, 31
 .inner_loop
 	ld a, [de]
@@ -6722,7 +6741,7 @@ Function10306e:
 	ld a, $01
 	ldh [hOAMUpdate], a
 	call ClearSprites
-	ld de, wVirtualOAM
+	ld de, wShadowOAM
 	call Function1030cd
 	xor a
 	ldh [hOAMUpdate], a

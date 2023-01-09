@@ -15,9 +15,9 @@ IlexForest_MapScripts:
 	def_scene_scripts
 
 	def_callbacks
-	callback MAPCALLBACK_OBJECTS, .FarfetchdCallback
+	callback MAPCALLBACK_OBJECTS, IlexForestFarfetchdCallback
 
-.FarfetchdCallback:
+IlexForestFarfetchdCallback:
 	checkevent EVENT_GOT_HM01_CUT
 	iftrue .Static
 	readmem wFarfetchdPosition
@@ -475,7 +475,7 @@ IlexForestShrineScript:
 	writetext Text_KurtCaughtCelebi
 	waitbutton
 	closetext
-	applymovement ILEXFOREST_KURT, IlexFOrestKurtStepsDownMovement
+	applymovement ILEXFOREST_KURT, IlexForestKurtStepsDownMovement
 	disappear ILEXFOREST_KURT
 .DidntCatchCelebi:
 	end
@@ -722,7 +722,7 @@ IlexForestKurtStepsUpMovement:
 	step UP
 	step_end
 
-IlexFOrestKurtStepsDownMovement:
+IlexForestKurtStepsDownMovement:
 	step DOWN
 	step DOWN
 	step DOWN

@@ -6,26 +6,28 @@
 	const SLOTS_PIKACHU  ; $0c
 	const SLOTS_SQUIRTLE ; $10
 	const SLOTS_STARYU   ; $14
-NUM_SLOT_REELS EQU const_value / 4 ; 6
-SLOTS_NO_MATCH EQU -1
+DEF NUM_SLOT_REELS EQU const_value / 4 ; 6
+DEF SLOTS_NO_MATCH EQU -1
 
 ; wSlotBias values
-SLOTS_NO_BIAS  EQU -1
+DEF SLOTS_NO_BIAS EQU -1
 
-REEL_SIZE EQU 15
+DEF REEL_SIZE EQU 15
 
-; Constants for slot_reel offsets (see macros/wram.asm)
-REEL_ACTION        EQUS "(wReel1ReelAction - wReel1)"
-REEL_TILEMAP_ADDR  EQUS "(wReel1TilemapAddr - wReel1)"
-REEL_POSITION      EQUS "(wReel1Position - wReel1)"
-REEL_SPIN_DISTANCE EQUS "(wReel1SpinDistance - wReel1)"
-REEL_SPIN_RATE     EQUS "(wReel1SpinRate - wReel1)"
-REEL_OAM_ADDR      EQUS "(wReel1OAMAddr - wReel1)"
-REEL_X_COORD       EQUS "(wReel1XCoord - wReel1)"
-REEL_MANIP_COUNTER EQUS "(wReel1ManipCounter - wReel1)"
-REEL_MANIP_DELAY   EQUS "(wReel1ManipDelay - wReel1)"
-REEL_FIELD_0B      EQUS "(wReel1Field0b - wReel1)"
-REEL_STOP_DELAY    EQUS "(wReel1StopDelay - wReel1)"
+; Constants for slot_reel offsets (see macros/ram.asm)
+rsreset
+DEF REEL_ACTION        rb ; 0
+DEF REEL_TILEMAP_ADDR  rw ; 1
+DEF REEL_POSITION      rb ; 3
+DEF REEL_SPIN_DISTANCE rb ; 4
+DEF REEL_SPIN_RATE     rb ; 5
+DEF REEL_OAM_ADDR      rw ; 6
+DEF REEL_X_COORD       rb ; 8
+DEF REEL_MANIP_COUNTER rb ; 9
+DEF REEL_MANIP_DELAY   rb ; 10
+DEF REEL_DROP_COUNTER  rb ; 11
+                       rb_skip 3
+DEF REEL_STOP_DELAY    rb ; 15
 
 ; SlotsJumptable constants
 	const_def
@@ -48,7 +50,7 @@ REEL_STOP_DELAY    EQUS "(wReel1StopDelay - wReel1)"
 	const SLOTS_PAYOUT_ANIM
 	const SLOTS_RESTART_OF_QUIT
 	const SLOTS_QUIT
-SLOTS_END_LOOP_F EQU 7
+DEF SLOTS_END_LOOP_F EQU 7
 
 ; ReelActionJumptable constants
 	const_def
@@ -258,7 +260,7 @@ AnimateSlotReelIcons: ; unreferenced
 	inc [hl]
 	and $7
 	ret nz
-	ld hl, wVirtualOAMSprite16TileID
+	ld hl, wShadowOAMSprite16TileID
 	ld c, NUM_SPRITE_OAM_STRUCTS - 16
 .loop
 	ld a, [hl]
@@ -483,12 +485,13 @@ SlotsAction_PayoutAnim:
 	jr c, .okay
 	inc de
 .okay
+; BUG: Slot machine payout sound effects cut each other off (see docs/bugs_and_glitches.md)
 	ld [hl], e
 	dec hl
 	ld [hl], d
 	ld a, [wSlotsDelay]
 	and $7
-	ret z ; ret nz would be more appropriate
+	ret z
 	ld de, SFX_GET_COIN_FROM_SLOTS
 	call PlaySFX
 	ret
@@ -666,7 +669,7 @@ Slots_InitReelTiles:
 	ld bc, wReel1
 	ld hl, REEL_OAM_ADDR
 	add hl, bc
-	ld de, wVirtualOAMSprite16
+	ld de, wShadowOAMSprite16
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -684,7 +687,7 @@ Slots_InitReelTiles:
 	ld bc, wReel2
 	ld hl, REEL_OAM_ADDR
 	add hl, bc
-	ld de, wVirtualOAMSprite24
+	ld de, wShadowOAMSprite24
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -702,7 +705,7 @@ Slots_InitReelTiles:
 	ld bc, wReel3
 	ld hl, REEL_OAM_ADDR
 	add hl, bc
-	ld de, wVirtualOAMSprite32
+	ld de, wShadowOAMSprite32
 	ld [hl], e
 	inc hl
 	ld [hl], d
@@ -1299,14 +1302,14 @@ ReelAction_CheckDropReel:
 	ld hl, REEL_ACTION
 	add hl, bc
 	inc [hl] ; REEL_ACTION_WAIT_DROP_REEL
-	ld hl, REEL_FIELD_0B
+	ld hl, REEL_DROP_COUNTER
 	add hl, bc
 	ld [hl], 32
 	ld hl, REEL_SPIN_RATE
 	add hl, bc
 	ld [hl], 0
 ReelAction_WaitDropReel:
-	ld hl, REEL_FIELD_0B
+	ld hl, REEL_DROP_COUNTER
 	add hl, bc
 	ld a, [hl]
 	and a
@@ -1317,7 +1320,7 @@ ReelAction_WaitDropReel:
 .DropReel:
 	ld hl, REEL_ACTION
 	add hl, bc
-	dec [hl]
+	dec [hl] ; REEL_ACTION_CHECK_DROP_REEL
 	ld hl, REEL_SPIN_RATE
 	add hl, bc
 	ld [hl], 8

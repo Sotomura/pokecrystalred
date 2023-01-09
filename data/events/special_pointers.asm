@@ -1,7 +1,7 @@
 ; Special routines can be used with the "special" map script command.
 ; They often use wScriptVar for arguments and return values.
 
-add_special: MACRO
+MACRO add_special
 \1Special::
 	dba \1
 ENDM
@@ -123,7 +123,7 @@ SpecialsPointers::
 
 ; Crystal only
 	add_special Function11ac3e
-	add_special Function11b444
+	add_special TradeCornerHoldMon
 	add_special Function11b5e8
 	add_special Function11b7e5
 	add_special Function11b879

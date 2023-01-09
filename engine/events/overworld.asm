@@ -278,7 +278,6 @@ FlashFunction:
 	ret
 
 .CheckUseFlash:
-; Flash
 	ld de, ENGINE_ZEPHYRBADGE
 	farcall CheckBadge
 	jr c, .nozephyrbadge
@@ -401,6 +400,7 @@ SurfFromMenuScript:
 	special UpdateTimePals
 
 UsedSurfScript:
+; BUG: Surfing directly across a map connection does not load the new map (see docs/bugs_and_glitches.md)
 	writetext UsedSurfText ; "used SURF!"
 	waitbutton
 	closetext
@@ -552,12 +552,11 @@ FlyFunction:
 	ret
 
 .Jumptable:
- 	dw .TryFly
- 	dw .DoFly
- 	dw .FailFly
+	dw .TryFly
+	dw .DoFly
+	dw .FailFly
 
 .TryFly:
-; Fly
 	ld de, ENGINE_STORMBADGE
 	call CheckBadge
 	jr c, .nostormbadge
@@ -637,7 +636,6 @@ WaterfallFunction:
 	ret
 
 .TryWaterfall:
-; Waterfall
 	ld de, ENGINE_RISINGBADGE
 	farcall CheckBadge
 	ld a, $80
@@ -688,7 +686,7 @@ Script_UsedWaterfall:
 .CheckContinueWaterfall:
 	xor a
 	ld [wScriptVar], a
-	ld a, [wPlayerStandingTile]
+	ld a, [wPlayerTile]
 	call CheckWaterfallTile
 	ret z
 	farcall StubbedTrainerRankings_Waterfall
@@ -963,7 +961,6 @@ StrengthFunction:
 	ret
 
 .TryStrength:
-; Strength
 	ld de, ENGINE_PLAINBADGE
 	call CheckBadge
 	jr c, .Failed
@@ -1445,6 +1442,7 @@ FishFunction:
 	dw .FishNoFish
 
 .TryFish:
+; BUG: You can fish on top of NPCs (see docs/bugs_and_glitches.md)
 	ld a, [wPlayerState]
 	cp PLAYER_SURF
 	jr z, .fail
@@ -1695,7 +1693,7 @@ BikeFunction:
 	jr .nope
 
 .ok
-	call GetPlayerStandingTile
+	call GetPlayerTile
 	and $f ; lo nybble only
 	jr nz, .nope ; not FLOOR_TILE
 	xor a

@@ -127,17 +127,17 @@ endr
 	ret
 
 DebugColor_InitVRAM:
-	ld a, BANK(vTiles3)
+	ld a, $1
 	ldh [rVBK], a
-	ld hl, vTiles3
-	ld bc, sScratch - vTiles3
+	ld hl, VRAM_Begin
+	ld bc, VRAM_End - VRAM_Begin
 	xor a
 	call ByteFill
 
-	ld a, BANK(vTiles0)
+	ld a, $0
 	ldh [rVBK], a
-	ld hl, vTiles0
-	ld bc, sScratch - vTiles0
+	ld hl, VRAM_Begin
+	ld bc, VRAM_End - VRAM_Begin
 	xor a
 	call ByteFill
 
@@ -1026,7 +1026,7 @@ DebugColor_PlaceCursor:
 
 	ld b, $70 ; initial tile id
 	ld c, 5 ; initial palette
-	ld hl, wVirtualOAM
+	ld hl, wShadowOAM
 	ld de, wDebugRedChannel
 	call .placesprite
 	ld de, wDebugGreenChannel

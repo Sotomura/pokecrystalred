@@ -1,5 +1,9 @@
-pushc
+; A library included as part of the Mobile Adapter GB SDK.
+
 setcharmap ascii
+
+
+SECTION "Mobile Adapter SDK Mail", ROMX
 
 String_114000:
 	db "---", 0
@@ -5154,5 +5158,3 @@ Function115d80:
 	ld d, $a0
 	ld e, $0
 	ret
-
-popc

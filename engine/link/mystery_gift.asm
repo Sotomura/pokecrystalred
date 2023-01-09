@@ -1,28 +1,28 @@
 ; hMGRole values
-IR_RECEIVER EQU 1
-IR_SENDER   EQU 2
+DEF IR_RECEIVER EQU 1
+DEF IR_SENDER   EQU 2
 
 ; hMGStatusFlags error bits
-MG_WRONG_CHECKSUM_F EQU 0
-MG_TIMED_OUT_F      EQU 1
-MG_CANCELED_F       EQU 4
-MG_WRONG_PREFIX_F   EQU 7
+DEF MG_WRONG_CHECKSUM_F EQU 0
+DEF MG_TIMED_OUT_F      EQU 1
+DEF MG_CANCELED_F       EQU 4
+DEF MG_WRONG_PREFIX_F   EQU 7
 
 ; hMGStatusFlags values
-MG_WRONG_CHECKSUM EQU 1 << MG_WRONG_CHECKSUM_F
-MG_TIMED_OUT      EQU 1 << MG_TIMED_OUT_F
-MG_CANCELED       EQU 1 << MG_CANCELED_F
-MG_WRONG_PREFIX   EQU 1 << MG_WRONG_PREFIX_F
-MG_NOT_OKAY       EQU MG_WRONG_CHECKSUM | MG_TIMED_OUT | MG_CANCELED | MG_WRONG_PREFIX
-MG_OKAY           EQU ~MG_NOT_OKAY
-MG_START_END      EQU %11111111
+DEF MG_WRONG_CHECKSUM EQU 1 << MG_WRONG_CHECKSUM_F
+DEF MG_TIMED_OUT      EQU 1 << MG_TIMED_OUT_F
+DEF MG_CANCELED       EQU 1 << MG_CANCELED_F
+DEF MG_WRONG_PREFIX   EQU 1 << MG_WRONG_PREFIX_F
+DEF MG_NOT_OKAY       EQU MG_WRONG_CHECKSUM | MG_TIMED_OUT | MG_CANCELED | MG_WRONG_PREFIX
+DEF MG_OKAY           EQU ~MG_NOT_OKAY
+DEF MG_START_END      EQU %11111111
 
-REGION_PREFIX EQU $96
-REGION_CODE   EQU $90 ; USA
+DEF REGION_PREFIX EQU $96
+DEF REGION_CODE   EQU $90 ; USA
 
-MESSAGE_PREFIX EQU $5a
+DEF MESSAGE_PREFIX EQU $5a
 
-NAME_CARD_PREFIX EQU $3c
+DEF NAME_CARD_PREFIX EQU $3c
 
 DoMysteryGift:
 	call ClearTilemap
@@ -37,14 +37,23 @@ DoMysteryGift:
 	; Prepare the first of two messages for wMysteryGiftPartnerData
 	farcall StageDataForMysteryGift
 	call ClearMysteryGiftTrainer
+	vc_patch Infrared_stage_party_data
+if DEF(_CRYSTAL11_VC)
+	farcall StagePartyDataForMysteryGift
+	call ClearMysteryGiftTrainer
+	nop
+else
 	ld a, 2
 	ld [wMysteryGiftMessageCount], a
 	ld a, wMysteryGiftPartnerDataEnd - wMysteryGiftPartnerData
 	ld [wMysteryGiftStagedDataLength], a
+endc
+	vc_patch_end
 
 	ldh a, [rIE]
 	push af
 	call ExchangeMysteryGiftData
+	vc_hook Infrared_ExchangeMysteryGiftData_end
 	ld d, a
 	xor a
 	ldh [rIF], a
@@ -260,6 +269,26 @@ DoMysteryGift:
 	jp CloseSRAM
 
 ExchangeMysteryGiftData:
+	vc_hook Infrared_ExchangeMysteryGiftData_start
+	vc_patch Infrared_ExchangeMysteryGiftData_function
+if DEF(_CRYSTAL11_VC)
+	ld d, $ef
+.loop
+	dec d
+	ld a, d
+	or a
+	jr nz, .loop
+	vc_hook Infrared_ExchangeMysteryGiftData_loop_done
+	nop
+	cp MG_CANCELED
+.restart ; same location as unpatched .restart
+	ret z
+	nop
+	nop
+	cp MG_OKAY
+	jr nz, ExchangeMysteryGiftData
+	ret
+else
 	di
 	farcall ClearChannels
 	call InitializeIRCommunicationInterrupts
@@ -268,6 +297,8 @@ ExchangeMysteryGiftData:
 	call BeginIRCommunication
 	call InitializeIRCommunicationRoles
 	ldh a, [hMGStatusFlags]
+endc
+	vc_patch_end
 	cp MG_CANCELED
 	jp z, EndOrContinueMysteryGiftIRCommunication
 	cp MG_OKAY
@@ -768,6 +799,7 @@ ReceiveInfraredLEDOn:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 	ldh a, [c]
 	bit rRP_RECEIVING, a
 	jr z, .recv_loop
@@ -782,6 +814,7 @@ ReceiveInfraredLEDOff:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 	ldh a, [c]
 	bit rRP_RECEIVING, a
 	jr nz, .no_recv_loop
@@ -798,6 +831,7 @@ SendInfraredLEDOn:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 	jr .wait
 
 SendInfraredLEDOff:
@@ -810,6 +844,7 @@ SendInfraredLEDOff:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 	jr .wait
 
 InitializeIRCommunicationRoles:
@@ -1006,6 +1041,7 @@ SendIRDataMessage:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 	ld a, rRP_ENABLE_READ_MASK | (1 << rRP_LED_ON)
 	ldh [rRP], a
 	; Turn the LED off for longer if the bit is 1
@@ -1026,6 +1062,7 @@ SendIRDataMessage:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 .no_halt
 	ldh a, [hMGNumBits]
 	dec a
@@ -1039,6 +1076,7 @@ SendIRDataMessage:
 	xor a
 	ldh [rIF], a
 	halt
+	nop
 
 	ld d, 5
 	call SendInfraredLEDOn
@@ -1611,7 +1649,7 @@ DoNameCardSwap:
 .SlideNameCardUpOffScreen:
 	ld c, 16
 .loop
-	ld hl, wVirtualOAMSprite00YCoord
+	ld hl, wShadowOAMSprite00YCoord
 	ld b, 8
 .dec_y_loop
 	dec [hl]
@@ -1620,7 +1658,7 @@ rept SPRITEOAMSTRUCT_LENGTH
 endr
 	dec b
 	jr nz, .dec_y_loop
-	ld hl, wVirtualOAMSprite08YCoord
+	ld hl, wShadowOAMSprite08YCoord
 	ld b, 8
 .inc_y_loop
 	inc [hl]
@@ -1710,13 +1748,13 @@ StageDataForNameCard:
 	ld a, [sCrystalData + 0]
 	ld [de], a
 	inc de
-	ld a, BANK(s4_a603) ; aka BANK(s4_a007) ; MBC30 bank used by JP Crystal; inaccessible by MBC3
+	ld a, BANK(s4_a603) ; aka BANK(sEZChatMessages) ; MBC30 bank used by JP Crystal; inaccessible by MBC3
 	call OpenSRAM
 	ld hl, s4_a603 ; address of MBC30 bank
 	ld bc, 8
 	call CopyBytes
-	ld hl, s4_a007 ; address of MBC30 bank
-	ld bc, 12
+	ld hl, sEZChatIntroductionMessage ; address of MBC30 bank
+	ld bc, EASY_CHAT_MESSAGE_LENGTH
 	call CopyBytes
 	call CloseSRAM
 	ret
@@ -1805,7 +1843,7 @@ InitNameCardLayout:
 	ld [hl], $3c
 	hlcoord 17, 15
 	ld [hl], $3e
-	ld de, wVirtualOAMSprite00
+	ld de, wShadowOAMSprite00
 	ld hl, .NameCardOAMData
 	ld bc, 16 * SPRITEOAMSTRUCT_LENGTH
 	call CopyBytes

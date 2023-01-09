@@ -1351,6 +1351,9 @@
 	const EVENT_FLORIA_AT_SUDOWOODO
 	const EVENT_GOLDENROD_CITY_MOVE_TUTOR
 	const EVENT_GOLDENROD_GAME_CORNER_MOVE_TUTOR
+; Unused: next 0 events
+; (In pokegold the previous 4 event flags were not defined,
+; but in pokecrystal the 'const_next 1900' is redundant.)
 
 	const_next 1900
 ; Kanto people
@@ -1455,8 +1458,8 @@
 	const EVENT_MOUNT_MORTAR_B1F_PP_UP
 	const EVENT_RADIO_TOWER_5F_ULTRA_BALL
 	const EVENT_DARK_CAVE_VIOLET_ENTRANCE_DIRE_HIT
-	const EVENT_BATTLE_TOWER_OUTSIDE_SAILOR
+	const EVENT_BATTLE_TOWER_OPEN_CIVILIANS
 ; Unused: next 48 events
 
 	const_next 2048
-NUM_EVENTS EQU const_value ; 800
+DEF NUM_EVENTS EQU const_value ; 800

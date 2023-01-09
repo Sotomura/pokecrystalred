@@ -750,7 +750,7 @@ _MovePKMNWithoutMail:
 .a_button_2
 	call BillsPC_CheckSpaceInDestination
 	jr c, .no_space
-	call MovePKMNWitoutMail_InsertMon
+	call MovePKMNWithoutMail_InsertMon
 	ld a, $0
 	ld [wJumptableIndex], a
 	ret
@@ -1079,7 +1079,7 @@ PCMonInfo:
 	hlcoord 1, 12
 	call PrintLevel
 
-	ld a, $3
+	ld a, TEMPMON
 	ld [wMonType], a
 	farcall GetGender
 	jr c, .skip_gender
@@ -1370,7 +1370,7 @@ BillsPC_RefreshTextboxes:
 .Placeholder:
 	db "-----@"
 
-copy_box_data: MACRO
+MACRO copy_box_data
 .loop\@
 	ld a, [hl]
 	cp -1
@@ -1394,9 +1394,9 @@ copy_box_data: MACRO
 	jr .loop\@
 
 .done\@
-if \1
-	call CloseSRAM
-endc
+	if \1
+		call CloseSRAM
+	endc
 	ld a, -1
 	ld [de], a
 	ld a, [wBillsPCTempBoxCount]
@@ -1460,7 +1460,7 @@ BillsPC_UpdateSelectionCursor:
 
 .place_cursor
 	ld hl, .OAM
-	ld de, wVirtualOAMSprite00
+	ld de, wShadowOAMSprite00
 .loop
 	ld a, [hl]
 	cp -1
@@ -1508,7 +1508,7 @@ endr
 
 BillsPC_UpdateInsertCursor:
 	ld hl, .OAM
-	ld de, wVirtualOAMSprite00
+	ld de, wShadowOAMSprite00
 .loop
 	ld a, [hl]
 	cp -1
@@ -1918,7 +1918,7 @@ ReleasePKMN_ByePKMN:
 	call DelayFrames
 	ret
 
-MovePKMNWitoutMail_InsertMon:
+MovePKMNWithoutMail_InsertMon:
 	push hl
 	push de
 	push bc
@@ -2153,20 +2153,9 @@ GetBoxPointer:
 
 .BoxBankAddresses:
 	table_width 3, GetBoxPointer.BoxBankAddresses
-	dba sBox1
-	dba sBox2
-	dba sBox3
-	dba sBox4
-	dba sBox5
-	dba sBox6
-	dba sBox7
-	dba sBox8
-	dba sBox9
-	dba sBox10
-	dba sBox11
-	dba sBox12
-	dba sBox13
-	dba sBox14
+for n, 1, NUM_BOXES + 1
+	dba sBox{d:n}
+endr
 	assert_table_length NUM_BOXES
 
 BillsPC_ApplyPalettes:
@@ -2371,20 +2360,9 @@ GetBoxCount:
 
 .BoxBankAddresses:
 	table_width 3, GetBoxCount.BoxBankAddresses
-	dba sBox1
-	dba sBox2
-	dba sBox3
-	dba sBox4
-	dba sBox5
-	dba sBox6
-	dba sBox7
-	dba sBox8
-	dba sBox9
-	dba sBox10
-	dba sBox11
-	dba sBox12
-	dba sBox13
-	dba sBox14
+for n, 1, NUM_BOXES + 1
+	dba sBox{d:n}
+endr
 	assert_table_length NUM_BOXES
 
 BillsPC_PrintBoxName:

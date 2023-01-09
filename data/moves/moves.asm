@@ -1,6 +1,6 @@
 ; Characteristics of each move.
 
-move: MACRO
+MACRO move
 	db \1 ; animation
 	db \2 ; effect
 	db \3 ; power
@@ -8,6 +8,7 @@ move: MACRO
 	db \5 percent ; accuracy
 	db \6 ; pp
 	db \7 percent ; effect chance
+	assert \6 <= 40, "PP must be 40 or less"
 ENDM
 
 Moves:
