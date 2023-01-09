@@ -17,7 +17,7 @@ PlayersNeighborsHouseBookshelfScript:
 	jumpstd MagazineBookshelfScript
 
 PlayersNeighborsHouseRadioScript:
-	checkevent EVENT_GOT_A_POKEMON_FROM_ELM
+	checkevent EVENT_GOT_A_POKEMON_FROM_OAK
 	iftrue .NormalRadio
 	checkevent EVENT_LISTENED_TO_INITIAL_RADIO
 	iftrue .AbbreviatedRadio

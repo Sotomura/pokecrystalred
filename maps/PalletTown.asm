@@ -32,26 +32,28 @@ BluesHouseSign:
 
 PalletTownTeacherText:
 	text "I'm raising #-"
-	line "MON too."
+	line "MON, too."
 
-	para "They serve as my"
-	line "private guards."
+	para "When they get"
+	line "strong, they can"
+	cont "protect me!"
 	done
 
 PalletTownFisherText:
 	text "Technology is"
 	line "incredible!"
 
-	para "You can now trade"
-	line "#MON across"
-	cont "time like e-mail."
+	para "You can now store"
+	line "and recall items"
+	cont "and #MON as"
+	cont "data via PC!"
 	done
 
 PalletTownSignText:
 	text "PALLET TOWN"
 
-	para "A Tranquil Setting"
-	line "of Peace & Purity"
+	para "Shades of your"
+	line "journey await!"
 	done
 
 RedsHouseSignText:

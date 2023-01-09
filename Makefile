@@ -57,12 +57,8 @@ RGBLINK ?= $(RGBDS)rgblink
 .SECONDARY:
 
 all: crystal11
-crystal:         pokecrystal.gbc
-crystal11:       pokecrystal11.gbc
-crystal_au:      pokecrystal_au.gbc
-crystal_debug:   pokecrystal_debug.gbc
-crystal11_debug: pokecrystal11_debug.gbc
-crystal11_vc:    pokecrystal11.patch
+pokecrystalred:       pokecrystalred.gbc
+pokecrystalred_vc:    pokecrystalred.patch
 
 clean: tidy
 	find gfx \
