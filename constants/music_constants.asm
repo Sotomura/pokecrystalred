@@ -105,6 +105,14 @@
 	const MUSIC_SUICUNE_BATTLE               ; 64
 	const MUSIC_BATTLE_TOWER_LOBBY           ; 65
 	const MUSIC_MOBILE_CENTER                ; 66
+; imported from Polished Crystal
+	const MUSIC_MART                         ; 67
+	const MUSIC_CERULEAN_CITY                ; 68
+	const MUSIC_NUGGET_BRIDGE                ; 69
+	const MUSIC_SAFARI_ZONE_GATE             ; 6a
+	
+; imported from Prism
+	const MUSIC_CINNABAR_ISLAND              ; 6b
 NUM_MUSIC_SONGS EQU const_value
 
 ; GetMapMusic picks music for this value (see home/map.asm)

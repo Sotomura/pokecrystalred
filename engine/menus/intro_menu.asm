@@ -1,11 +1,11 @@
 Intro_MainMenu:
-	ld de, MUSIC_NONE
-	call PlayMusic
-	call DelayFrame
-	ld de, MUSIC_MAIN_MENU
-	ld a, e
-	ld [wMapMusic], a
-	call PlayMusic
+	; ld de, MUSIC_NONE
+	; call PlayMusic
+	; call DelayFrame
+	; ld de, MUSIC_TITLE
+	; ld a, e
+	; ld [wMapMusic], a
+	; call PlayMusic
 	farcall MainMenu
 	jp StartTitleScreen
 
@@ -637,7 +637,7 @@ OakSpeech:
 	call RotateFourPalettesLeft
 	call ClearTilemap
 
-	ld de, MUSIC_ROUTE_30
+	ld de, MUSIC_NUGGET_BRIDGE
 	call PlayMusic
 
 	call RotateFourPalettesRight
@@ -657,7 +657,7 @@ OakSpeech:
 	call RotateThreePalettesRight
 	call ClearTilemap
 
-	ld a, WOOPER
+	ld a, NIDORINO
 	ld [wCurSpecies], a
 	ld [wCurPartySpecies], a
 	call GetBaseData
@@ -717,7 +717,7 @@ OakText1:
 OakText2:
 	text_far _OakText2
 	text_asm
-	ld a, WOOPER
+	ld a, NIDORINO
 	call PlayMonCry
 	call WaitSFX
 	ld hl, OakText3
@@ -774,19 +774,19 @@ NamePlayer:
 	call RotateThreePalettesLeft
 
 	ld hl, wPlayerName
-	ld de, .Chris
+	ld de, .Red
 	ld a, [wPlayerGender]
 	bit PLAYERGENDER_FEMALE_F, a
 	jr z, .Male
-	ld de, .Kris
+	ld de, .Green
 .Male:
 	call InitName
 	ret
 
-.Chris:
-	db "CHRIS@@@@@@"
-.Kris:
-	db "KRIS@@@@@@@"
+.Red:
+	db "RED@@@@@@@@"
+.Green:
+	db "GREEN@@@@@@"
 
 GSShowPlayerNamingChoices: ; unreferenced
 	call LoadMenuHeader

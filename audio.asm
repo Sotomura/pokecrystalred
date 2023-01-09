@@ -45,7 +45,7 @@ INCLUDE "audio/music/route2.asm"
 INCLUDE "audio/music/mtmoon.asm"
 INCLUDE "audio/music/showmearound.asm"
 INCLUDE "audio/music/gamecorner.asm"
-INCLUDE "audio/music/bicycle.asm"
+INCLUDE "audio/music/rby/bikeriding.asm"
 INCLUDE "audio/music/looksage.asm"
 INCLUDE "audio/music/pokemonchannel.asm"
 INCLUDE "audio/music/lighthouse.asm"
@@ -90,7 +90,7 @@ INCLUDE "audio/music/profoakspokemontalk.asm"
 INCLUDE "audio/music/profoak.asm"
 INCLUDE "audio/music/lookrival.asm"
 INCLUDE "audio/music/aftertherivalfight.asm"
-INCLUDE "audio/music/surf.asm"
+INCLUDE "audio/music/rby/surfing.asm"
 INCLUDE "audio/music/nationalpark.asm"
 INCLUDE "audio/music/azaleatown.asm"
 INCLUDE "audio/music/cherrygrovecity.asm"
@@ -139,6 +139,17 @@ INCLUDE "audio/music/mobileadapter.asm"
 SECTION "Extra Songs 2", ROMX
 
 INCLUDE "audio/music/postcredits.asm"
+
+
+SECTION "Polished Crystal Music", ROMX
+
+INCLUDE "audio/music/hgss/ceruleancity.asm"
+INCLUDE "audio/music/hgss/nuggetbridge.asm"
+INCLUDE "audio/music/hgss/mart.asm"
+INCLUDE "audio/music/hgss/safarizonegate.asm"
+
+SECTION "Pokémon Prism Music", ROMX
+INCLUDE "audio/music/prism/cinnabarremix.asm"
 
 
 SECTION "Sound Effects", ROMX

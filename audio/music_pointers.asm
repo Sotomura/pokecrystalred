@@ -22,7 +22,7 @@ Music:
 	dba Music_MtMoon
 	dba Music_ShowMeAround
 	dba Music_GameCorner
-	dba Music_Bicycle
+	dba Music_BicycleRB
 	dba Music_HallOfFame
 	dba Music_ViridianCity
 	dba Music_CeladonCity
@@ -36,7 +36,7 @@ Music:
 	dba Music_ProfOak
 	dba Music_LookRival
 	dba Music_AfterTheRivalFight
-	dba Music_Surf
+	dba Music_SurfingRBY
 	dba Music_Evolution
 	dba Music_NationalPark
 	dba Music_Credits
@@ -107,4 +107,10 @@ Music:
 	dba Music_SuicuneBattle
 	dba Music_BattleTowerLobby
 	dba Music_MobileCenter
+	dba Music_MartHGSS
+	dba Music_CeruleanCityHGSS
+	dba Music_NuggetBridgeHGSS
+	dba Music_SafariZoneGateHGSS
+	dba Music_CinnabarRemix
+
 	assert_table_length NUM_MUSIC_SONGS
