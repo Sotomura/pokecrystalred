@@ -337,6 +337,16 @@ _LookJigglypuffPosterText::
 	line "cute JIGGLYPUFF."
 	done
 
+_ConsoleDecoText::
+	text "<PLAYER> is playing"
+	line "the @"
+	text_ram wStringBuffer3
+	text "!"
+	
+	para "…Okay!"
+	line "It's time to go!"
+	done
+
 _LookAdorableDecoText::
 	text "It's an adorable"
 	line "@"

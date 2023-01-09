@@ -20,19 +20,55 @@ PlayersHouse1FNoop2Scene:
 
 MeetMomLeftScript:
 	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
-
-MeetMomRightScript:
-	playmusic MUSIC_MOM
-	showemote EMOTE_SHOCK, PLAYERSHOUSE1F_MOM1, 15
-	turnobject PLAYER, LEFT
-	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
-	iffalse .OnRight
-	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsTowardPlayerMovement
 	sjump MeetMomScript
 
-.OnRight:
-	applymovement PLAYERSHOUSE1F_MOM1, MomWalksToPlayerMovement
+MeetMomUp3Script:
+	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_3
+	sjump MeetMomScript
+
+MeetMomUp2Script:
+	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_4
+	sjump MeetMomScript
+
+MeetMomUp1Script:
+	setevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_5
+	sjump MeetMomScript
+
+MeetMomRightScript:
+	sjump MeetMomScript
+
 MeetMomScript:
+	playmusic MUSIC_MOM
+	showemote EMOTE_SHOCK, PLAYERSHOUSE1F_MOM1, 15
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_3
+	iftrue .MomUp3
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_4
+	iftrue .MomUp2
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_5
+	iftrue .MomUp1
+	turnobject PLAYER, LEFT
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
+	iftrue .MomRight1
+	applymovement PLAYERSHOUSE1F_MOM1, MomWalksToPlayerMovement
+	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsTowardPlayerMovement
+	sjump MeetMomScript2
+
+.MomRight1:
+	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsTowardPlayerMovement
+	sjump MeetMomScript2
+.MomUp3:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomWalksToPlayerMovementUp3
+	sjump MeetMomScript2
+.MomUp2:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomWalksToPlayerMovementUp2
+	sjump MeetMomScript2
+.MomUp1:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsUpTowardPlayerMovement
+	sjump MeetMomScript2
+MeetMomScript2:
 	opentext
 	writetext ElmsLookingForYouText
 	promptbutton
@@ -80,18 +116,40 @@ MeetMomScript:
 	writetext InstructionsNextText
 	waitbutton
 	closetext
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_3
+	iftrue .MomReturnUp3
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_4
+	iftrue .MomReturnUp2
+	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_5
+	iftrue .MomReturnUp1
 	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_1
-	iftrue .FromRight
-	checkevent EVENT_TEMPORARY_UNTIL_MAP_RELOAD_2
-	iffalse .FromLeft
+	iftrue .MomRight1
+	sjump .FromLeft
 	sjump .Finish
 
-.FromRight:
+.MomRight1:
+	turnobject PLAYER, LEFT
 	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsBackMovement
 	sjump .Finish
 
 .FromLeft:
+	turnobject PLAYER, LEFT
 	applymovement PLAYERSHOUSE1F_MOM1, MomWalksBackMovement
+	sjump .Finish
+
+.MomReturnUp3:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomWalksBackDown2Movement
+	sjump .Finish
+
+.MomReturnUp2:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomWalksBackDown1Movement
+	sjump .Finish
+
+.MomReturnUp1:
+	turnobject PLAYER, DOWN
+	applymovement PLAYERSHOUSE1F_MOM1, MomTurnsBackMovement
 	sjump .Finish
 
 .Finish:
@@ -198,8 +256,25 @@ MomTurnsTowardPlayerMovement:
 	turn_head RIGHT
 	step_end
 
+MomTurnsUpTowardPlayerMovement:
+	turn_head UP
+	step_end
+
 MomWalksToPlayerMovement:
 	slow_step RIGHT
+	step_end
+
+MomWalksToPlayerMovementUp3:
+	slow_step UP
+	slow_step UP
+	step_end
+
+MomWalksToPlayerMovementUp2:
+	slow_step UP
+	step_end
+
+MomWalksToPlayerMovementUp1:
+	slow_step UP
 	step_end
 
 MomTurnsBackMovement:
@@ -210,22 +285,33 @@ MomWalksBackMovement:
 	slow_step LEFT
 	step_end
 
+MomWalksBackDown2Movement:
+	slow_step DOWN
+	slow_step DOWN
+	turn_head LEFT
+	step_end
+
+MomWalksBackDown1Movement:
+	slow_step DOWN
+	turn_head LEFT
+	step_end
+
 ElmsLookingForYouText:
-	text "Oh, <PLAYER>…! Our"
-	line "neighbor, PROF."
+	text "MOM: Right."
+	line "All boys leave"
+	cont "home some day."
+	cont "It said so on TV."
 
-	para "ELM, was looking"
-	line "for you."
+	para "PROF.OAK, next"
+	line "door, is looking"
+	cont "for you."
 
-	para "He said he wanted"
-	line "you to do some-"
-	cont "thing for him."
+	para "And before you go,"
+	line "you'll want this!"
 
-	para "Oh! I almost for-"
-	line "got! Your #MON"
-
-	para "GEAR is back from"
-	line "the repair shop."
+	para "A #MON GEAR,"
+	line "especially for"
+	cont "your travels!"
 
 	para "Here you go!"
 	done
@@ -234,15 +320,15 @@ MomGivesPokegearText:
 	text "#MON GEAR, or"
 	line "just #GEAR."
 
-	para "It's essential if"
-	line "you want to be a"
-	cont "good trainer."
+	para "An essential for"
+	line "the would-be"
+	cont "traveller!"
 
 	para "Oh, the day of the"
 	line "week isn't set."
 
-	para "You mustn't forget"
-	line "that!"
+	para "Shall we set that"
+	line "up?"
 	done
 
 IsItDSTText:
@@ -257,22 +343,22 @@ ComeHomeForDSTText:
 	para "for Daylight"
 	line "Saving Time."
 
-	para "By the way, do you"
+	para "Oh, right! Do you"
 	line "know how to use"
 	cont "the PHONE?"
 	done
 
 KnowTheInstructionsText:
-	text "Don't you just"
+	text "Yes, you'd know you"
 	line "turn the #GEAR"
 
 	para "on and select the"
-	line "PHONE icon?"
+	line "PHONE icon!"
 	done
 
 DontKnowTheInstructionsText:
-	text "I'll read the"
-	line "instructions."
+	text "Let's see. The"
+	line "instructions say…"
 
 	para "Turn the #GEAR"
 	line "on and select the"
@@ -286,15 +372,17 @@ InstructionsNextText:
 	para "Just choose a name"
 	line "you want to call."
 
-	para "Gee, isn't that"
-	line "convenient?"
+	para "Isn't that just"
+	line "wonderful?"
 	done
 
 HurryUpElmIsWaitingText:
-	text "PROF.ELM is wait-"
-	line "ing for you."
+	text "PROF.OAK, next"
+	line "door, is looking"
+	cont "for you."
 
-	para "Hurry up, baby!"
+	para "Better get to it,"
+	line "<PLAYER>!"
 	done
 
 SoWhatWasProfElmsErrandText:
@@ -392,18 +480,22 @@ PlayersHouse1F_MapEvents:
 	warp_event  9,  0, PLAYERS_HOUSE_2F, 1
 
 	def_coord_events
-	coord_event  8,  4, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomLeftScript
-	coord_event  9,  4, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomRightScript
+	coord_event  8,  3, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomLeftScript
+	coord_event  9,  3, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomRightScript
+
+	coord_event  7,  0, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomUp3Script
+	coord_event  7,  1, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomUp2Script
+	coord_event  7,  2, SCENE_PLAYERSHOUSE1F_MEET_MOM, MeetMomUp1Script
 
 	def_bg_events
-	bg_event  0,  1, BGEVENT_READ, PlayersHouse1FStoveScript
-	bg_event  1,  1, BGEVENT_READ, PlayersHouse1FSinkScript
-	bg_event  2,  1, BGEVENT_READ, PlayersHouse1FFridgeScript
+;	bg_event  0,  0, BGEVENT_READ, PlayersHouse1FStoveScript
+;	bg_event  1,  0, BGEVENT_READ, PlayersHouse1FSinkScript
+;	bg_event  0,  1, BGEVENT_READ, PlayersHouse1FFridgeScript
 	bg_event  4,  1, BGEVENT_READ, PlayersHouse1FTVScript
 
 	def_object_events
-	object_event  7,  4, SPRITE_MOM, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_1
+	object_event  7,  3, SPRITE_MOM, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, -1, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_1
 	object_event  2,  2, SPRITE_MOM, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, MORN, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_2
-	object_event  7,  4, SPRITE_MOM, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, DAY, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_2
-	object_event  0,  2, SPRITE_MOM, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, NITE, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_2
-	object_event  4,  4, SPRITE_POKEFAN_F, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, NeighborScript, EVENT_PLAYERS_HOUSE_1F_NEIGHBOR
+	object_event  7,  3, SPRITE_MOM, SPRITEMOVEDATA_STANDING_LEFT, 0, 0, -1, DAY, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_2
+	object_event  4,  3, SPRITE_MOM, SPRITEMOVEDATA_STANDING_UP, 0, 0, -1, NITE, 0, OBJECTTYPE_SCRIPT, 0, MomScript, EVENT_PLAYERS_HOUSE_MOM_2
+;	object_event  0,  5, SPRITE_POKEFAN_F, SPRITEMOVEDATA_STANDING_RIGHT, 0, 0, -1, -1, PAL_NPC_RED, OBJECTTYPE_SCRIPT, 0, NeighborScript, EVENT_PLAYERS_HOUSE_1F_NEIGHBOR

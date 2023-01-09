@@ -1070,7 +1070,11 @@ DecorationDesc_OrnamentOrConsole:
 	ret
 
 .OrnamentConsoleScript:
-	jumptext .LookAdorableDecoText
+	jumptext .ConsoleDecoText
+
+.ConsoleDecoText:
+	text_far _ConsoleDecoText
+	text_end
 
 .LookAdorableDecoText:
 	text_far _LookAdorableDecoText
