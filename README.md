@@ -1,6 +1,6 @@
-# Pokémon Crystal [![Build Status][ci-badge]][ci]
+# pokecrystalred [![Build Status][ci-badge]][ci]
 
-This is a disassembly of Pokémon Crystal.
+This is a remake of Pokémon Red based on the Pokémon Crystal disassembly.
 
 It builds the following ROMs:
 

@@ -3,6 +3,27 @@ _OakText6::
 	line "say your name was?"
 	prompt
 
+_YourNameIsText::
+	text "Right! So your"
+	line "name is <PLAYER>!"
+	prompt
+
+_IntroduceRivalText::
+	text "This is my grand-"
+	line "son. He's been your"
+	cont "rival since you"
+	cont "were a baby."
+
+	para "…Erm, what is his"
+	line "name again?"
+	prompt
+
+_HisNameIsText::
+	text "That's right! I"
+	line "remember now! His"
+	cont "name is <RIVAL>!"
+	prompt
+
 _OakText7::
 	text "<PLAYER>, are you"
 	line "ready?"

@@ -706,6 +706,39 @@ OakSpeech:
 	ld hl, OakText6
 	call PrintText
 	call NamePlayer
+
+	ld hl, YourNameIsText
+	call PrintText
+
+	call RotateThreePalettesRight
+	call ClearTilemap
+
+	xor a
+	ld [wCurPartySpecies], a
+	farcall DrawIntroBluePic
+
+	ld b, SCGB_TRAINER_OR_MON_FRONTPIC_PALS
+	call GetSGBLayout
+	call Intro_RotatePalettesLeftFrontpic
+
+	ld hl, IntroduceRivalText
+	call PrintText
+	call NameBlue
+
+	ld hl, HisNameIsText
+	call PrintText
+
+	call RotateThreePalettesRight
+	call ClearTilemap
+
+	xor a
+	ld [wCurPartySpecies], a
+	farcall DrawIntroPlayerPic
+
+	ld b, SCGB_TRAINER_OR_MON_FRONTPIC_PALS
+	call GetSGBLayout
+	call Intro_RotatePalettesLeftFrontpic
+
 	ld hl, OakText7
 	call PrintText
 	ret
@@ -737,6 +770,18 @@ OakText5:
 
 OakText6:
 	text_far _OakText6
+	text_end
+
+YourNameIsText:
+	text_far _YourNameIsText
+	text_end
+
+IntroduceRivalText:
+	text_far _IntroduceRivalText
+	text_end
+
+HisNameIsText:
+	text_far _HisNameIsText
 	text_end
 
 OakText7:
@@ -803,6 +848,53 @@ StorePlayerName:
 	ld hl, wPlayerName
 	call ByteFill
 	ld hl, wPlayerName
+	ld de, wStringBuffer2
+	call CopyName2
+	ret
+
+NameBlue:
+	farcall MovePlayerPicRight
+	farcall ShowBlueNamingChoices
+	ld a, [wMenuCursorY]
+	dec a
+	jr z, .NewNameBlue
+	call StoreBlueName
+	farcall ApplyMonOrTrainerPals
+	farcall MovePlayerPicLeft
+	ret
+
+.NewNameBlue:
+	ld b, NAME_RIVAL
+	ld de, wRivalName
+	farcall NamingScreen
+
+	call RotateThreePalettesRight
+	call ClearTilemap
+
+	call LoadFontsExtra
+	call WaitBGMap
+
+	xor a
+	ld [wCurPartySpecies], a
+	farcall DrawIntroBluePic
+
+	ld b, SCGB_TRAINER_OR_MON_FRONTPIC_PALS
+	call GetSGBLayout
+	call RotateThreePalettesLeft
+
+	ld hl, wRivalName
+	ld de, .Blue
+	call InitName
+	ret
+.Blue:
+	db "BLUE@@@@@@@"
+
+StoreBlueName:
+	ld a, "@"
+	ld bc, NAME_LENGTH
+	ld hl, wRivalName
+	call ByteFill
+	ld hl, wRivalName
 	ld de, wStringBuffer2
 	call CopyName2
 	ret

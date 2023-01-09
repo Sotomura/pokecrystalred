@@ -69,6 +69,17 @@ ShowPlayerNamingChoices:
 	call CloseWindow
 	ret
 
+ShowBlueNamingChoices:
+	ld hl, BlueNameMenuHeader
+.got_header
+	call LoadMenuHeader
+	call VerticalMenu
+	ld a, [wMenuCursorY]
+	dec a
+	call CopyNameFromMenu
+	call CloseWindow
+	ret
+
 INCLUDE "data/player_names.asm"
 
 GetPlayerNameArray: ; unreferenced
@@ -200,11 +211,39 @@ DrawIntroPlayerPic:
 	predef PlaceGraphic
 	ret
 
+DrawIntroBluePic:
+; Draw Blue’s pic at (6,4).
+
+; Get class
+	ld e, BLUE
+.got_class
+	ld a, e
+	ld [wTrainerClass], a
+
+; Load pic
+	ld de, BluePic
+.got_pic
+	ld hl, vTiles2
+	ld b, BANK(BluePic)
+	ld c, 7 * 7 ; dimensions
+	call Get2bpp
+
+; Draw
+	xor a
+	ldh [hGraphicStartTile], a
+	hlcoord 6, 4
+	lb bc, 7, 7
+	predef PlaceGraphic
+	ret
+
 ChrisPic:
-INCBIN "gfx/player/chris.2bpp"
+INCBIN "gfx/player/red.2bpp"
 
 KrisPic:
 INCBIN "gfx/player/kris.2bpp"
+
+BluePic:
+INCBIN "gfx/trainers/blue.2bpp"
 
 GetKrisBackpic:
 ; Kris's backpic is uncompressed.
